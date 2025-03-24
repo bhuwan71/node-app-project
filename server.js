@@ -1,42 +1,55 @@
 const express = require("express");
 const cors = require("cors");
+const dotenv = require("dotenv");
+
+dotenv.config(); // Load environment variables
 
 const app = express();
 
-var corsOptions = {
-  origin: "http://localhost:8081"
+// CORS options
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS || "*", // Dynamically set origin from environment variables or allow all origins
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // Allows cookies if needed
+  preflightContinue: false, // Handle preflight requests
+  optionsSuccessStatus: 204, // Success status for OPTIONS requests
 };
 
+// Enable CORS for all routes
 app.use(cors(corsOptions));
 
-// parse requests of content-type - application/json
+// Parse requests of content-type - application/json
 app.use(express.json());
 
-// parse requests of content-type - application/x-www-form-urlencoded
+// Parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
+// Database connection
 const db = require("./app/models");
 db.mongoose
   .connect(db.url, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   })
   .then(() => {
     console.log("Connected to the database!");
   })
-  .catch(err => {
+  .catch((err) => {
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
 
-// simple route
+// Simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
+  res.json({ message: "Welcome to Astro Based Dating App Web application." });
 });
 
-require("./app/routes/turorial.routes")(app);
+// Import and use routes
+require("./app/routes/auth.routes")(app);
+require("./app/routes/kundali.routes")(app);
 
-// set port, listen for requests
+// Set port and listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
