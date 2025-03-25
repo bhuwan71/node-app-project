@@ -6,10 +6,16 @@ const JWT_SECRET = "mySuperSecretKey123";
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, businessRn, businessAddress } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({ username, email, password: hashedPassword });
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword,
+      businessRn,
+      businessAddress,
+    });
     await user.save();
 
     res.status(201).json({ message: "User registered successfully" });
